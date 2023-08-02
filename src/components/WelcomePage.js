@@ -1,24 +1,30 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { AuthContext } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function WelcomePage() {
+  const { isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [usernames, setUsernames] = useState([]);
 
   useEffect(() => {
-    const fetchUsernames = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/usernames");
-
-        if (response.data.success) {
-          setUsernames(response.data.usernames);
+    if (!isAuthenticated) {
+      navigate('/');
+    } else {
+      const fetchUsernames = async () => {
+        try {
+          const response = await axios.get('http://localhost:8080/usernames');
+          if (response.data.success) {
+            setUsernames(response.data.usernames);
+          }
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUsernames();
-  }, []);
+      };
+      fetchUsernames();
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div>
