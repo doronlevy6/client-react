@@ -1,20 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
-import { AuthContext } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function WelcomePage() {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [usernames, setUsernames] = useState([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/');
+      navigate("/");
     } else {
       const fetchUsernames = async () => {
         try {
-          const response = await axios.get('http://localhost:8080/usernames');
+          const response = await axios.get("http://localhost:8080/usernames");
+
           if (response.data.success) {
             setUsernames(response.data.usernames);
           }
@@ -24,7 +25,7 @@ function WelcomePage() {
       };
       fetchUsernames();
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   return (
     <div>
