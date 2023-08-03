@@ -23,20 +23,43 @@ function GradePage() {
             );
             console.log("\n filteredUsernames", filteredUsernames, "\n");
 
-            const initialGradingPromises = filteredUsernames.map((username) =>
-              axios.get(`http://localhost:8080/rankings/${username.username}`)
+            const initialGradingPromises = filteredUsernames.map((username) => {
+              console.log("\n username", username, "\n");
+              return axios.get(`http://localhost:8080/rankings/${username}`);
+            });
+
+            console.log(
+              "\n initialGradingPromises",
+              initialGradingPromises,
+              "\n"
             );
+
             const rankingsResponses = await Promise.all(initialGradingPromises);
             console.log("\n rankingsResponses", rankingsResponses, "\n");
 
             const initialGrading = rankingsResponses.map((response, index) => {
+              console.log("\n xxx", "exist", "\n");
               if (
                 response.data.success &&
                 response.data.rankings &&
                 response.data.rankings.length > 0
               ) {
                 // If rankings exist for the user, initialize with the existing values
-                return response.data.rankings[0];
+                console.log(
+                  "\n response.data.rankings[0]",
+                  response.data.rankings[0],
+                  "\n"
+                );
+
+                return {
+                  username: response.data.rankings[0].rated_username,
+                  skillLevel: response.data.rankings[0].skill_level,
+                  scoringAbility: response.data.rankings[0].scoring_ability,
+                  defensiveSkills: response.data.rankings[0].defensive_skills,
+                  speedAndAgility: response.data.rankings[0].speed_and_agility,
+                  shootingRange: response.data.rankings[0].shooting_range,
+                  reboundSkills: response.data.rankings[0].rebound_skills,
+                };
               } else {
                 // If no rankings exist, initialize with 5 for each category
                 console.log(
