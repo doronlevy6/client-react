@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Button, Container, Table, Row, Col, Form } from "react-bootstrap";
 
 function GradePage() {
   const { isAuthenticated, user } = useContext(AuthContext);
@@ -9,32 +10,18 @@ function GradePage() {
   const [grading, setGrading] = useState([]);
 
   useEffect(() => {
-    console.log("\n user", user, "\n");
-
     if (!isAuthenticated) {
       navigate("/");
     } else {
       const fetchUsernames = async () => {
         try {
           const response = await axios.get("http://localhost:8080/usernames");
-
-          console.log(
-            "\n response.data.usernames;",
-            response.data.usernames,
-            "\n"
-          );
-
           if (response.data.success && user) {
-            console.log("\n user", user, "\n");
             const filteredUsernames = response.data.usernames.filter(
               (username) => {
-                console.log("\n username.username", username, "\n");
-                console.log("\n user.username", user.username, "\n");
-
                 return username !== user.username;
               }
             );
-            console.log("\n filteredUsernames", filteredUsernames, "\n");
 
             const initialGradingPromises = filteredUsernames.map((username) => {
               return axios.get(`http://localhost:8080/rankings/${username}`);
@@ -48,13 +35,6 @@ function GradePage() {
                 response.data.rankings &&
                 response.data.rankings.length > 0
               ) {
-                // If rankings exist for the user, initialize with the existing values
-                console.log(
-                  "\n response.data.rankings[0]",
-                  response.data.rankings[0],
-                  "\n"
-                );
-
                 return {
                   username: response.data.rankings[0].rated_username,
                   skillLevel: response.data.rankings[0].skill_level,
@@ -65,13 +45,6 @@ function GradePage() {
                   reboundSkills: response.data.rankings[0].rebound_skills,
                 };
               } else {
-                // If no rankings exist, initialize with 5 for each category
-                console.log(
-                  "\n filteredUsernames[index].username",
-                  filteredUsernames[index],
-                  "\n"
-                );
-
                 return {
                   username: filteredUsernames[index],
                   skillLevel: 5,
@@ -96,9 +69,6 @@ function GradePage() {
 
   const submitGrading = async () => {
     try {
-      console.log("\n xxx", user.username, "\n");
-      console.log("\n grading", grading, "\n");
-
       const response = await axios.post("http://localhost:8080/rankings", {
         rater_username: user.username,
         rankings: grading,
@@ -112,6 +82,7 @@ function GradePage() {
       alert("Failed to submit grading.");
     }
   };
+
   const handleInputChange = (playerUsername, category) => (event) => {
     setGrading((prevGrading) =>
       prevGrading.map((gradingPlayer) =>
@@ -125,99 +96,112 @@ function GradePage() {
     );
   };
 
-  // You can add a submit function here to send the grading data back to the server
-  console.log("\n grading1", grading, "\n");
-
   return (
-    <div>
-      <h2>Your grades are shown here</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Username</th>
-            <th>Skill Level</th>
-            <th>Scoring Ability</th>
-            <th>Defensive Skills</th>
-            <th>Speed and Agility</th>
-            <th>Shooting Range</th>
-            <th>Rebound Skills</th>
-          </tr>
-        </thead>
-        <tbody>
-          {grading.map((player, index) => (
-            <tr key={index}>
-              <td>{player.username}</td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={player.skillLevel}
-                  onChange={handleInputChange(player.username, "skillLevel")}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={player.scoringAbility}
-                  onChange={handleInputChange(
-                    player.username,
-                    "scoringAbility"
-                  )}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={player.defensiveSkills}
-                  onChange={handleInputChange(
-                    player.username,
-                    "defensiveSkills"
-                  )}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={player.speedAndAgility}
-                  onChange={handleInputChange(
-                    player.username,
-                    "speedAndAgility"
-                  )}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={player.shootingRange}
-                  onChange={handleInputChange(player.username, "shootingRange")}
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={player.reboundSkills}
-                  onChange={handleInputChange(player.username, "reboundSkills")}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button onClick={submitGrading}>Submit</button>
-      {/* You can add a submit button here */}
-    </div>
+    <Container className="mt-3">
+      <Row className="justify-content-md-center">
+        <Col xs lg="12">
+          <h2>Your grades are shown here</h2>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Skill Level</th>
+                <th>Scoring Ability</th>
+                <th>Defensive Skills</th>
+                <th>Speed and Agility</th>
+                <th>Shooting Range</th>
+                <th>Rebound Skills</th>
+              </tr>
+            </thead>
+            <tbody>
+              {grading.map((player, index) => (
+                <tr key={index}>
+                  <td>{player.username}</td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={player.skillLevel}
+                      onChange={handleInputChange(
+                        player.username,
+                        "skillLevel"
+                      )}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={player.scoringAbility}
+                      onChange={handleInputChange(
+                        player.username,
+                        "scoringAbility"
+                      )}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={player.defensiveSkills}
+                      onChange={handleInputChange(
+                        player.username,
+                        "defensiveSkills"
+                      )}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={player.speedAndAgility}
+                      onChange={handleInputChange(
+                        player.username,
+                        "speedAndAgility"
+                      )}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={player.shootingRange}
+                      onChange={handleInputChange(
+                        player.username,
+                        "shootingRange"
+                      )}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={player.reboundSkills}
+                      onChange={handleInputChange(
+                        player.username,
+                        "reboundSkills"
+                      )}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <Button variant="primary" onClick={submitGrading}>
+            Submit
+          </Button>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
 export default GradePage;
+
+// need to see that we get the grade that the login user gave
