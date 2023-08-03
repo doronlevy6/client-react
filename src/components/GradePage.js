@@ -9,36 +9,40 @@ function GradePage() {
   const [grading, setGrading] = useState([]);
 
   useEffect(() => {
+    console.log("\n user", user, "\n");
+
     if (!isAuthenticated) {
       navigate("/");
     } else {
       const fetchUsernames = async () => {
         try {
           const response = await axios.get("http://localhost:8080/usernames");
-          console.log("\n response12", response, "\n");
+
+          console.log(
+            "\n response.data.usernames;",
+            response.data.usernames,
+            "\n"
+          );
 
           if (response.data.success && user) {
+            console.log("\n user", user, "\n");
             const filteredUsernames = response.data.usernames.filter(
-              (username) => username.username !== user.username
+              (username) => {
+                console.log("\n username.username", username, "\n");
+                console.log("\n user.username", user.username, "\n");
+
+                return username !== user.username;
+              }
             );
             console.log("\n filteredUsernames", filteredUsernames, "\n");
 
             const initialGradingPromises = filteredUsernames.map((username) => {
-              console.log("\n username", username, "\n");
               return axios.get(`http://localhost:8080/rankings/${username}`);
             });
 
-            console.log(
-              "\n initialGradingPromises",
-              initialGradingPromises,
-              "\n"
-            );
-
             const rankingsResponses = await Promise.all(initialGradingPromises);
-            console.log("\n rankingsResponses", rankingsResponses, "\n");
 
             const initialGrading = rankingsResponses.map((response, index) => {
-              console.log("\n xxx", "exist", "\n");
               if (
                 response.data.success &&
                 response.data.rankings &&
