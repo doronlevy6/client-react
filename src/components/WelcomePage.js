@@ -41,28 +41,34 @@ function WelcomePage() {
   }, [isAuthenticated, navigate, user]);
 
   return (
-    <div>
-      <h2>Welcome Page</h2>
-      <p>Welcome to the app!</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Usernames</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usernames.map((username, index) => (
-            <tr key={index}>
-              <td>{username}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button onClick={fetchTeams}>Create Teams</button>
+    <div style={{ display: "flex", flexDirection: "row" }}>
       <div>
+        <h2>Usernames</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Usernames</th>
+            </tr>
+          </thead>
+          <tbody>
+            {usernames.map((username, index) => (
+              <tr key={index}>
+                <td>{username}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "flex-start",
+        }}
+      >
         {Array.isArray(teams) ? (
           teams.map((team, index) => (
-            <div key={index}>
+            <div key={index} style={{ marginLeft: "16px" }}>
               <h3>Team {index + 1}</h3>
               {Array.isArray(team) ? (
                 team.map((player, i) => <p key={i}>{player.username}</p>)
@@ -72,7 +78,10 @@ function WelcomePage() {
             </div>
           ))
         ) : (
-          <p>No teams created.</p>
+          <div>
+            <button onClick={fetchTeams}>Create Teams</button>
+            <p>No teams created.</p>
+          </div>
         )}
       </div>
     </div>
