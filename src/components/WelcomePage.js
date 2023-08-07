@@ -9,34 +9,33 @@ function WelcomePage() {
   const [usernames, setUsernames] = useState([]);
   const [teams, setTeams] = useState([]);
 
-  const fetchTeams = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/get-teams");
-
-      if (response.data.success) {
-        setTeams(response.data.teams);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/");
     } else {
-      const fetchUsernames = async () => {
+      const fetchData = async () => {
         try {
-          const response = await axios.get("http://localhost:8080/usernames");
+          const usernamesResponse = await axios.get(
+            "http://localhost:8080/usernames"
+          );
 
-          if (response.data.success) {
-            setUsernames(response.data.usernames);
+          if (usernamesResponse.data.success) {
+            setUsernames(usernamesResponse.data.usernames);
+          }
+
+          const teamsResponse = await axios.get(
+            "http://localhost:8080/get-teams"
+          );
+
+          if (teamsResponse.data.success) {
+            setTeams(teamsResponse.data.teams);
           }
         } catch (error) {
           console.error(error);
         }
       };
-      fetchUsernames();
+
+      fetchData();
     }
   }, [isAuthenticated, navigate, user]);
 
@@ -59,16 +58,11 @@ function WelcomePage() {
           </tbody>
         </table>
       </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "flex-start",
-        }}
-      >
-        {Array.isArray(teams) ? (
+      <div>
+        <h2>Teams</h2>
+        {Array.isArray(teams) && teams.length > 0 ? (
           teams.map((team, index) => (
-            <div key={index} style={{ marginLeft: "16px" }}>
+            <div key={index}>
               <h3>Team {index + 1}</h3>
               {Array.isArray(team) ? (
                 team.map((player, i) => <p key={i}>{player.username}</p>)
@@ -78,10 +72,7 @@ function WelcomePage() {
             </div>
           ))
         ) : (
-          <div>
-            <button onClick={fetchTeams}>Create Teams</button>
-            <p>No teams created.</p>
-          </div>
+          <p>No teams created.</p>
         )}
       </div>
     </div>
