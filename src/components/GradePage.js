@@ -3,6 +3,7 @@ import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Table, Row, Col, Form } from "react-bootstrap";
+import "./GradePage.css";
 
 function GradePage() {
   const { isAuthenticated, user } = useContext(AuthContext);
@@ -13,49 +14,53 @@ function GradePage() {
     if (!isAuthenticated) {
       navigate("/");
     } else {
-      const fetchUsernames = async () => {
+      const fetchRankings = async () => {
         try {
-          const response = await axios.get("http://localhost:8080/usernames");
-          if (response.data.success && user) {
-            const filteredUsernames = response.data.usernames.filter(
-              (username) => {
+          // Fetch all usernames
+          const usernamesResponse = await axios.get(
+            "http://localhost:8080/usernames"
+          );
+          // Fetch all rankings given by the logged-in user
+          const rankingsResponse = await axios.get(
+            `http://localhost:8080/rankings/${user.username}`
+          );
+
+          if (usernamesResponse.data.success && rankingsResponse.data.success) {
+            // Convert the rankings into an object for easy access
+            const rankingsByUser = {};
+            rankingsResponse.data.rankings.forEach((ranking) => {
+              rankingsByUser[ranking.rated_username] = ranking;
+            });
+
+            // Prepare the initial grading data, considering all the usernames
+            const initialGrading = usernamesResponse.data.usernames
+              .filter((username) => {
                 return username !== user.username;
-              }
-            );
-
-            const initialGradingPromises = filteredUsernames.map((username) => {
-              return axios.get(`http://localhost:8080/rankings/${username}`);
-            });
-
-            const rankingsResponses = await Promise.all(initialGradingPromises);
-
-            const initialGrading = rankingsResponses.map((response, index) => {
-              if (
-                response.data.success &&
-                response.data.rankings &&
-                response.data.rankings.length > 0
-              ) {
-                return {
-                  username: response.data.rankings[0].rated_username,
-                  skillLevel: response.data.rankings[0].skill_level,
-                  scoringAbility: response.data.rankings[0].scoring_ability,
-                  defensiveSkills: response.data.rankings[0].defensive_skills,
-                  speedAndAgility: response.data.rankings[0].speed_and_agility,
-                  shootingRange: response.data.rankings[0].shooting_range,
-                  reboundSkills: response.data.rankings[0].rebound_skills,
-                };
-              } else {
-                return {
-                  username: filteredUsernames[index],
-                  skillLevel: 5,
-                  scoringAbility: 5,
-                  defensiveSkills: 5,
-                  speedAndAgility: 5,
-                  shootingRange: 5,
-                  reboundSkills: 5,
-                };
-              }
-            });
+              })
+              .map((username) => {
+                const ranking = rankingsByUser[username];
+                if (ranking) {
+                  return {
+                    username: ranking.rated_username,
+                    skillLevel: ranking.skill_level,
+                    scoringAbility: ranking.scoring_ability,
+                    defensiveSkills: ranking.defensive_skills,
+                    speedAndAgility: ranking.speed_and_agility,
+                    shootingRange: ranking.shooting_range,
+                    reboundSkills: ranking.rebound_skills,
+                  };
+                } else {
+                  return {
+                    username: username,
+                    skillLevel: "3",
+                    scoringAbility: "3",
+                    defensiveSkills: "3",
+                    speedAndAgility: "3",
+                    shootingRange: "3",
+                    reboundSkills: "3",
+                  };
+                }
+              });
 
             setGrading(initialGrading);
           }
@@ -63,7 +68,8 @@ function GradePage() {
           console.error(error);
         }
       };
-      fetchUsernames();
+
+      fetchRankings();
     }
   }, [isAuthenticated, navigate, user]);
 
@@ -97,105 +103,111 @@ function GradePage() {
   };
 
   return (
-    <Container className="mt-3">
+    <Container className="grade-page mt-3">
       <Row className="justify-content-md-center">
         <Col xs lg="12">
-          <h2>Your grades are shown here</h2>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Skill Level</th>
-                <th>Scoring Ability</th>
-                <th>Defensive Skills</th>
-                <th>Speed and Agility</th>
-                <th>Shooting Range</th>
-                <th>Rebound Skills</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grading.map((player, index) => (
-                <tr key={index}>
-                  <td>{player.username}</td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={player.skillLevel}
-                      onChange={handleInputChange(
-                        player.username,
-                        "skillLevel"
-                      )}
-                    />
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={player.scoringAbility}
-                      onChange={handleInputChange(
-                        player.username,
-                        "scoringAbility"
-                      )}
-                    />
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={player.defensiveSkills}
-                      onChange={handleInputChange(
-                        player.username,
-                        "defensiveSkills"
-                      )}
-                    />
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={player.speedAndAgility}
-                      onChange={handleInputChange(
-                        player.username,
-                        "speedAndAgility"
-                      )}
-                    />
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={player.shootingRange}
-                      onChange={handleInputChange(
-                        player.username,
-                        "shootingRange"
-                      )}
-                    />
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={player.reboundSkills}
-                      onChange={handleInputChange(
-                        player.username,
-                        "reboundSkills"
-                      )}
-                    />
-                  </td>
+          <div className="grade-form">
+            <h2>{user.username}: your grades are shown here 🏀</h2>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Skill Level</th>
+                  <th>Scoring Ability</th>
+                  <th>Defensive Skills</th>
+                  <th>Speed and Agility</th>
+                  <th>Shooting Range</th>
+                  <th>Rebound Skills</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-          <Button variant="primary" onClick={submitGrading}>
-            Submit
-          </Button>
+              </thead>
+              <tbody>
+                {grading.map((player, index) => (
+                  <tr key={index}>
+                    <td>{player.username}</td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={player.skillLevel}
+                        onChange={handleInputChange(
+                          player.username,
+                          "skillLevel"
+                        )}
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={player.scoringAbility}
+                        onChange={handleInputChange(
+                          player.username,
+                          "scoringAbility"
+                        )}
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={player.defensiveSkills}
+                        onChange={handleInputChange(
+                          player.username,
+                          "defensiveSkills"
+                        )}
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={player.speedAndAgility}
+                        onChange={handleInputChange(
+                          player.username,
+                          "speedAndAgility"
+                        )}
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={player.shootingRange}
+                        onChange={handleInputChange(
+                          player.username,
+                          "shootingRange"
+                        )}
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max="10"
+                        value={player.reboundSkills}
+                        onChange={handleInputChange(
+                          player.username,
+                          "reboundSkills"
+                        )}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            <Button
+              className="grade-button"
+              variant="primary"
+              onClick={submitGrading}
+            >
+              Submit
+            </Button>
+          </div>
         </Col>
       </Row>
     </Container>
