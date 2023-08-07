@@ -7,6 +7,19 @@ function WelcomePage() {
   const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [usernames, setUsernames] = useState([]);
+  const [teams, setTeams] = useState([]);
+
+  const fetchTeams = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/get-teams");
+
+      if (response.data.success) {
+        setTeams(response.data.teams);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -45,6 +58,23 @@ function WelcomePage() {
           ))}
         </tbody>
       </table>
+      <button onClick={fetchTeams}>Create Teams</button>
+      <div>
+        {Array.isArray(teams) ? (
+          teams.map((team, index) => (
+            <div key={index}>
+              <h3>Team {index + 1}</h3>
+              {Array.isArray(team) ? (
+                team.map((player, i) => <p key={i}>{player.username}</p>)
+              ) : (
+                <p>No players in this team.</p>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No teams created.</p>
+        )}
+      </div>
     </div>
   );
 }
