@@ -6,6 +6,42 @@ import "./WelcomePage.css";
 function ManagementPage() {
   const { isAuthenticated, user } = useContext(AuthContext);
   const [usernames, setUsernames] = useState([]);
+  const [selectedUsernames, setSelectedUsernames] = useState([]);
+
+  const handleCheckboxChange = (e, username) => {
+    if (e.target.checked) {
+      setSelectedUsernames([...selectedUsernames, username]);
+    } else {
+      setSelectedUsernames(selectedUsernames.filter((u) => u !== username));
+    }
+  };
+  const handleEnlistUsers = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/enlist-users", {
+        usernames: selectedUsernames,
+      });
+      if (response.data.success) {
+        alert("Successfully enlisted users!");
+        setSelectedUsernames([]); // Clear selected usernames
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleDeleteEnlisted = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/delete-enlist", {
+        usernames: selectedUsernames,
+      });
+      if (response.data.success) {
+        alert("Successfully deleted enlisted users!");
+
+        setSelectedUsernames([]);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated || user.username !== "doron") {
@@ -34,9 +70,16 @@ function ManagementPage() {
     <div className="welcome-page">
       <div className="welcome-section">
         <h2>Usernames</h2>
+        <button onClick={handleEnlistUsers}>Enlist</button>
+        <button onClick={handleDeleteEnlisted}>Delete Enlisted</button>
         <div className="usernames-list">
           {usernames.map((username) => (
             <div key={username} className="team-averages">
+              <input
+                type="checkbox"
+                checked={selectedUsernames.includes(username)}
+                onChange={(e) => handleCheckboxChange(e, username)}
+              />
               {username}
             </div>
           ))}
