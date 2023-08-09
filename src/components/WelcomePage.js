@@ -3,38 +3,34 @@ import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css";
+
 function WelcomePage() {
   const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [usernames, setUsernames] = useState([]);
+
   const [teams, setTeams] = useState([]);
+  const [enlistedPlayers, setEnlistedPlayers] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const enlistResponse = await axios.get("http://localhost:8080/enlist");
+      if (enlistResponse.data.success) {
+        setEnlistedPlayers(enlistResponse.data.usernames);
+      }
+
+      const teamsResponse = await axios.get("http://localhost:8080/get-teams");
+      if (teamsResponse.data.success) {
+        setTeams(teamsResponse.data.teams);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/");
     } else {
-      const fetchData = async () => {
-        try {
-          const usernamesResponse = await axios.get(
-            "http://localhost:8080/usernames"
-          );
-
-          if (usernamesResponse.data.success) {
-            setUsernames(usernamesResponse.data.usernames);
-          }
-
-          const teamsResponse = await axios.get(
-            "http://localhost:8080/get-teams"
-          );
-
-          if (teamsResponse.data.success) {
-            setTeams(teamsResponse.data.teams);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
       fetchData();
     }
   }, [isAuthenticated, navigate, user]);
@@ -44,14 +40,11 @@ function WelcomePage() {
       const response = await axios.post("http://localhost:8080/enlist", {
         username: user.username,
       });
-      console.log("\n user.username", user.username, "\n");
-
       if (response.data.success) {
-        // Update state or show success message
-        alert("You have been enlisted for the next gam e!");
+        alert("You have been enlisted for the next game!");
+        fetchData(); // Refresh enlisted players after enlisting
       }
     } catch (error) {
-      // Handle error
       console.error(error);
       alert("Failed to enlist for the next game.");
     }
@@ -61,9 +54,9 @@ function WelcomePage() {
       <button onClick={enlistForGame}>Enlist for Next Game</button>
 
       <div className="welcome-section">
-        <h2>Usernames</h2>
+        <h2>Enlisted Players</h2>
         <div className="usernames-list">
-          {usernames.map((username, index) => (
+          {enlistedPlayers.map((username, index) => (
             <div key={index} className="team-averages">
               {username}
             </div>

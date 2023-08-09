@@ -33,11 +33,8 @@ function GradePage() {
             });
 
             // Prepare the initial grading data, considering all the usernames
-            const initialGrading = usernamesResponse.data.usernames
-              .filter((username) => {
-                return username !== user.username;
-              })
-              .map((username) => {
+            const initialGrading = usernamesResponse.data.usernames.map(
+              (username) => {
                 const ranking = rankingsByUser[username];
                 if (ranking) {
                   return {
@@ -60,7 +57,8 @@ function GradePage() {
                     reboundSkills: "3",
                   };
                 }
-              });
+              }
+            );
 
             setGrading(initialGrading);
           }
