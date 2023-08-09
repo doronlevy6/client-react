@@ -38,10 +38,28 @@ function WelcomePage() {
       fetchData();
     }
   }, [isAuthenticated, navigate, user]);
-  console.log("\n teMS", teams, "\n");
 
+  const enlistForGame = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/enlist", {
+        username: user.username,
+      });
+      console.log("\n user.username", user.username, "\n");
+
+      if (response.data.success) {
+        // Update state or show success message
+        alert("You have been enlisted for the next gam e!");
+      }
+    } catch (error) {
+      // Handle error
+      console.error(error);
+      alert("Failed to enlist for the next game.");
+    }
+  };
   return (
     <div className="welcome-page">
+      <button onClick={enlistForGame}>Enlist for Next Game</button>
+
       <div className="welcome-section">
         <h2>Usernames</h2>
         <div className="usernames-list">
