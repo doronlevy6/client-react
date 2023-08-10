@@ -1,3 +1,5 @@
+//src\components\WelcomePage.js:
+
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
@@ -19,11 +21,13 @@ function WelcomePage() {
       }
 
       const teamsResponse = await axios.get("http://localhost:8080/get-teams");
+      console.log("\n teamsResponse1", teamsResponse.data.teams, "\n");
+
       if (teamsResponse.data.success) {
         setTeams(teamsResponse.data.teams);
       }
     } catch (error) {
-      console.error(error);
+      console.error("x", error);
     }
   };
 
@@ -37,8 +41,9 @@ function WelcomePage() {
 
   const enlistForGame = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/enlist", {
-        username: user.username,
+      const usernames = [user.username];
+      const response = await axios.post("http://localhost:8080/enlist-users", {
+        usernames: usernames,
       });
       if (response.data.success) {
         alert("You have been enlisted for the next game!");
