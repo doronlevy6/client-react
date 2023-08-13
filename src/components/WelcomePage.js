@@ -5,6 +5,7 @@ import axios from "axios";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css";
+import io from "socket.io-client";
 
 function WelcomePage() {
   const { isAuthenticated, user } = useContext(AuthContext);
@@ -21,7 +22,6 @@ function WelcomePage() {
       }
 
       const teamsResponse = await axios.get("http://localhost:8080/get-teams");
-      console.log("\n teamsResponse1", teamsResponse.data.teams, "\n");
 
       if (teamsResponse.data.success) {
         setTeams(teamsResponse.data.teams);
@@ -36,6 +36,10 @@ function WelcomePage() {
       navigate("/");
     } else {
       fetchData();
+      // const interval = setInterval(fetchData, 5000);
+
+      // // Clear the interval when the component is unmounted
+      // return () => clearInterval(interval);
     }
   }, [isAuthenticated, navigate, user]);
 
@@ -54,6 +58,16 @@ function WelcomePage() {
       alert("Failed to enlist for the next game.");
     }
   };
+  useEffect(() => {
+    const socket = io("http://localhost:8080");
+
+    socket.on("teamsUpdated", () => {
+      fetchData();
+    });
+
+    return () => socket.disconnect(); // Cleanup on unmount
+  }, []);
+
   return (
     <div className="welcome-page">
       <button onClick={enlistForGame}>Enlist for Next Game</button>
