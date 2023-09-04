@@ -68,20 +68,6 @@ function ManagementPage() {
   };
   
   
-  // const handleDeleteEnlisted = async () => {
-  //   try {
-  //     const response = await axios.post("http://localhost:8080/delete-enlist", {
-  //       usernames: selectedUsernames,
-  //     });
-  //     if (response.data.success) {
-  //       alert("Successfully deleted enlisted users!");
-
-  //       setSelectedUsernames([]);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
 
   useEffect(() => {
     if (!isAuthenticated || user.username !== "doron") {
