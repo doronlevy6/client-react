@@ -81,7 +81,11 @@ function WelcomePage() {
             </div>
           ))}
         </div>
+        <div className="team-averages">
+          Players: {enlistedPlayers.length}
+        </div>
       </div>
+     
       <div className="welcome-section">
         <h2>Teams and Averages</h2>
         {Array.isArray(teams) && teams.length > 0 ? (
