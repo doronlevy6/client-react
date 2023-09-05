@@ -119,11 +119,11 @@ function WelcomePage() {
                 </div>
                 <div>
                 <h3>Averages:</h3>
-<p>Skill Level: {averages.skill_level.toFixed(2)}</p>
+<p>Playmaker: {averages.skill_level.toFixed(2)}</p>
 <p>Scoring Ability: {averages.scoring_ability.toFixed(2)}</p>
 <p>Defensive Skills: {averages.defensive_skills.toFixed(2)}</p>
 <p>Speed and Agility: {averages.speed_and_agility.toFixed(2)}</p>
-<p>Shooting Range: {averages.shooting_range.toFixed(2)}</p>
+<p>3 pt Shooting: {averages.shooting_range.toFixed(2)}</p>
 <p>Rebound Skills: {averages.rebound_skills.toFixed(2)}</p>
                 </div>
               </div>
