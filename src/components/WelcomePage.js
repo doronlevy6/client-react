@@ -36,10 +36,7 @@ function WelcomePage() {
       navigate("/");
     } else {
       fetchData();
-      // const interval = setInterval(fetchData, 5000);
-
-      // // Clear the interval when the component is unmounted
-      // return () => clearInterval(interval);
+     
     }
   }, [isAuthenticated, navigate, user]);
 
@@ -59,14 +56,14 @@ function WelcomePage() {
     }
   };
   useEffect(() => {
-    const socket = io("http://localhost:8080");
+        const socket = io("http://localhost:8080");
 
-    socket.on("teamsUpdated", () => {
+        socket.on("teamsUpdated", () => {
       fetchData();
     });
 
     return () => socket.disconnect(); // Cleanup on unmount
-  }, []);
+}, []);
 
   return (
     <div className="welcome-page">
