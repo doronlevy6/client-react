@@ -133,4 +133,5 @@ function WelcomePage() {
     </div>
   );
 }
+
 export default WelcomePage;
