@@ -12,6 +12,8 @@ function ManagementPage() {
   const [enlistedUsernames, setEnlistedUsernames] = useState([]);
   const [unenlistedUsernames, setUnenlistedUsernames] = useState([]);
 
+  // New state variable for checkbox
+  const [isTierMethod, setIsTierMethod] = useState(false);
 
   const handleCheckboxChange = (e, username) => {
     if (e.target.checked) {
@@ -34,40 +36,42 @@ function ManagementPage() {
       }
     }
   };
-  
+
 
   const handleEnlistUsers = async () => {
     try {
       // Enlist usernames from selectedUsernames
-      if (selectedUsernames.length > 0) {
-        await axios.post("http://localhost:8080/enlist-users", {
-          usernames: selectedUsernames,
-        });
-      }
-      
+
+      await axios.post("http://localhost:8080/enlist-users", {
+        usernames: selectedUsernames,
+        isTierMethod, // Include the method selection in payload
+      });
+
+
       // Unenlist usernames from unenlistedUsernames
       if (unenlistedUsernames.length > 0) {
         await axios.post("http://localhost:8080/delete-enlist", {
           usernames: unenlistedUsernames,
+          isTierMethod,
         });
       }
-      
+
       alert("Users updated successfully!");
-  
+
       // Update local state to reflect the changes
       setEnlistedUsernames(prevState => [
-        ...prevState.filter(username => !unenlistedUsernames.includes(username)), 
+        ...prevState.filter(username => !unenlistedUsernames.includes(username)),
         ...selectedUsernames
       ]);
       setSelectedUsernames([]);
       setUnenlistedUsernames([]);
-  
+
     } catch (error) {
       console.error(error);
     }
   };
-  
-  
+
+
 
   useEffect(() => {
     if (!isAuthenticated || user.username !== "doron") {
@@ -85,9 +89,9 @@ function ManagementPage() {
           setUsernames(usernamesResponse.data.usernames);
         }
         const enlistedResponse = await axios.get("http://localhost:8080/enlist");
-if (enlistedResponse.data.success) {
-  setEnlistedUsernames(enlistedResponse.data.usernames);
-}
+        if (enlistedResponse.data.success) {
+          setEnlistedUsernames(enlistedResponse.data.usernames);
+        }
 
       } catch (error) {
         console.error(error);
@@ -97,13 +101,21 @@ if (enlistedResponse.data.success) {
     fetchData();
   }, [isAuthenticated, user]);
 
-  const currentPlayingCount = enlistedUsernames.length 
-                          - unenlistedUsernames.length 
-                          + selectedUsernames.length;
+  const currentPlayingCount = enlistedUsernames.length
+    - unenlistedUsernames.length
+    + selectedUsernames.length;
 
   return (
     <div className="welcome-page">
       <div className="welcome-section">
+        <label>
+          <input
+            type="checkbox"
+            checked={isTierMethod}
+            onChange={(e) => setIsTierMethod(e.target.checked)}
+          />
+          Use Tier Method
+        </label>
         <div>
           <h3>Playing now: {currentPlayingCount}</h3>
         </div>
@@ -123,7 +135,7 @@ if (enlistedResponse.data.success) {
       </div>
     </div>
   );
-  
+
 }
 
 export default ManagementPage;

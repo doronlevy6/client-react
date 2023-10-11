@@ -36,7 +36,7 @@ function WelcomePage() {
       navigate("/");
     } else {
       fetchData();
-     
+
     }
   }, [isAuthenticated, navigate, user]);
 
@@ -56,14 +56,14 @@ function WelcomePage() {
     }
   };
   useEffect(() => {
-        const socket = io("http://localhost:8080");
+    const socket = io("http://localhost:8080");
 
-        socket.on("teamsUpdated", () => {
+    socket.on("teamsUpdated", () => {
       fetchData();
     });
 
     return () => socket.disconnect(); // Cleanup on unmount
-}, []);
+  }, []);
 
   return (
     <div className="welcome-page">
@@ -82,7 +82,7 @@ function WelcomePage() {
           Players: {enlistedPlayers.length}
         </div>
       </div>
-     
+
       <div className="welcome-section">
         <h2>Teams and Averages</h2>
         {Array.isArray(teams) && teams.length > 0 ? (
@@ -103,7 +103,9 @@ function WelcomePage() {
             for (const attr in averages) {
               averages[attr] /= team.length;
             }
-            //
+            const totalAverages = Object.values(averages).reduce((sum, average) => sum + average, 0); // Sum of all averages
+
+
             return (
               <div key={index} className="team-averages">
                 <div>
@@ -115,13 +117,14 @@ function WelcomePage() {
                   )}
                 </div>
                 <div>
-                <h3>Averages:</h3>
-<p>Playmaker: {averages.skill_level.toFixed(2)}</p>
-<p>Scoring Ability: {averages.scoring_ability.toFixed(2)}</p>
-<p>Defensive Skills: {averages.defensive_skills.toFixed(2)}</p>
-<p>Speed and Agility: {averages.speed_and_agility.toFixed(2)}</p>
-<p>3 pt Shooting: {averages.shooting_range.toFixed(2)}</p>
-<p>Rebound Skills: {averages.rebound_skills.toFixed(2)}</p>
+                  <h3>Averages:</h3>
+                  <p>Playmaker: {averages.skill_level.toFixed(2)}</p>
+                  <p>Scoring Ability: {averages.scoring_ability.toFixed(2)}</p>
+                  <p>Defensive Skills: {averages.defensive_skills.toFixed(2)}</p>
+                  <p>Speed and Agility: {averages.speed_and_agility.toFixed(2)}</p>
+                  <p>3 pt Shooting: {averages.shooting_range.toFixed(2)}</p>
+                  <p>Rebound Skills: {averages.rebound_skills.toFixed(2)}</p>
+                  <p>Total Averages Sum: {totalAverages.toFixed(2)}</p>
                 </div>
               </div>
             );
