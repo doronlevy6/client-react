@@ -8,18 +8,20 @@ import "./WelcomePage.css";
 function ManagementPage() {
   const { isAuthenticated, user } = useContext(AuthContext);
   const [usernames, setUsernames] = useState([]);
-  const [selectedUsernames, setSelectedUsernames] = useState([]);
   const [enlistedUsernames, setEnlistedUsernames] = useState([]);
-  const [unenlistedUsernames, setUnenlistedUsernames] = useState([]);
+  const [selectedUsernames, setSelectedUsernames] = useState([]);
+  const [unselectedUsernames, setUnselectedUsernames] = useState([]);
 
   // New state variable for checkbox
   const [isTierMethod, setIsTierMethod] = useState(false);
 
   const handleCheckboxChange = (e, username) => {
     if (e.target.checked) {
-      // Remove from unenlistedUsernames if it's there
-      if (unenlistedUsernames.includes(username)) {
-        setUnenlistedUsernames(prev => prev.filter(u => u !== username));
+
+
+      // Remove from unselectedUsernames if it's there
+      if (unselectedUsernames.includes(username)) {
+        setUnselectedUsernames(prev => prev.filter(u => u !== username));
       }
       // Add to selected usernames
       if (!selectedUsernames.includes(username) && !enlistedUsernames.includes(username)) {
@@ -30,41 +32,47 @@ function ManagementPage() {
       if (selectedUsernames.includes(username)) {
         setSelectedUsernames(prev => prev.filter(u => u !== username));
       }
-      // Add to unenlistedUsernames if it was already enlisted
-      if (enlistedUsernames.includes(username) && !unenlistedUsernames.includes(username)) {
-        setUnenlistedUsernames([...unenlistedUsernames, username]);
+      // Add to unselectedUsernames if it was already enlisted
+      if (enlistedUsernames.includes(username) && !unselectedUsernames.includes(username)) {
+        setUnselectedUsernames([...unselectedUsernames, username]);
       }
     }
   };
 
 
   const handleEnlistUsers = async () => {
+
+
+
+
     try {
       // Enlist usernames from selectedUsernames
-
-      await axios.post("http://localhost:8080/enlist-users", {
-        usernames: selectedUsernames,
-        isTierMethod, // Include the method selection in payload
-      });
-
-
-      // Unenlist usernames from unenlistedUsernames
-      if (unenlistedUsernames.length > 0) {
-        await axios.post("http://localhost:8080/delete-enlist", {
-          usernames: unenlistedUsernames,
-          isTierMethod,
+      if (selectedUsernames.length > 0) {
+        await axios.post("http://localhost:8080/enlist-users", {
+          usernames: selectedUsernames,
+          isTierMethod, // Include the method selection in payload
         });
       }
 
+      // Unenlist usernames from unselectedUsernames
+      if (unselectedUsernames.length > 0) {
+        await axios.post("http://localhost:8080/delete-enlist", {
+          usernames: unselectedUsernames,
+          isTierMethod,
+        });
+      }
+      await axios.post("http://localhost:8080/set-teams", {
+        isTierMethod,
+      });
       alert("Users updated successfully!");
 
       // Update local state to reflect the changes
       setEnlistedUsernames(prevState => [
-        ...prevState.filter(username => !unenlistedUsernames.includes(username)),
+        ...prevState.filter(username => !unselectedUsernames.includes(username)),
         ...selectedUsernames
       ]);
       setSelectedUsernames([]);
-      setUnenlistedUsernames([]);
+      setUnselectedUsernames([]);
 
     } catch (error) {
       console.error(error);
@@ -102,7 +110,7 @@ function ManagementPage() {
   }, [isAuthenticated, user]);
 
   const currentPlayingCount = enlistedUsernames.length
-    - unenlistedUsernames.length
+    - unselectedUsernames.length
     + selectedUsernames.length;
 
   return (
@@ -125,7 +133,7 @@ function ManagementPage() {
             <div key={username} className="team-averages">
               <input
                 type="checkbox"
-                checked={(selectedUsernames.includes(username) || enlistedUsernames.includes(username)) && !unenlistedUsernames.includes(username)}
+                checked={(selectedUsernames.includes(username) || enlistedUsernames.includes(username)) && !unselectedUsernames.includes(username)}
                 onChange={(e) => handleCheckboxChange(e, username)}
               />
               {username}
