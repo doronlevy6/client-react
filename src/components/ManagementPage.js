@@ -45,25 +45,30 @@ function ManagementPage() {
 
 
 
+
     try {
       // Enlist usernames from selectedUsernames
-      if (selectedUsernames.length > 0) {
-        await axios.post("http://localhost:8080/enlist-users", {
-          usernames: selectedUsernames,
-          isTierMethod, // Include the method selection in payload
-        });
-      }
+      if (selectedUsernames.length > 0 || (unselectedUsernames.length > 0)) {
+        if (selectedUsernames.length > 0) {
+          await axios.post("http://localhost:8080/enlist-users", {
+            usernames: selectedUsernames,
+            isTierMethod, // Include the method selection in payload
+          });
+        }
 
-      // Unenlist usernames from unselectedUsernames
-      if (unselectedUsernames.length > 0) {
+        // Unenlist usernames from unselectedUsernames
+        if (unselectedUsernames.length > 0) {
+          await axios.post("http://localhost:8080/delete-enlist", {
+            usernames: unselectedUsernames,
+            isTierMethod,
+          });
+        }
+      } else {
         await axios.post("http://localhost:8080/delete-enlist", {
-          usernames: unselectedUsernames,
           isTierMethod,
         });
       }
-      await axios.post("http://localhost:8080/set-teams", {
-        isTierMethod,
-      });
+
       alert("Users updated successfully!");
 
       // Update local state to reflect the changes
