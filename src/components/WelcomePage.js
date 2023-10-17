@@ -7,10 +7,7 @@ import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css";
 import io from "socket.io-client";
 
-
 function WelcomePage({ showOnlyTeams }) {
-
-
   const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -67,14 +64,11 @@ function WelcomePage({ showOnlyTeams }) {
 
     return () => socket.disconnect(); // Cleanup on unmount
   }, []);
-  console.log('\n\n\n showOnlyTeams', showOnlyTeams, '\n\n\n ');
-
 
   return (
     <div className="welcome-page">
       {!showOnlyTeams && (
         <>
-
           <button onClick={enlistForGame}>Enlist for Next Game</button>
 
           <div className="welcome-section">
