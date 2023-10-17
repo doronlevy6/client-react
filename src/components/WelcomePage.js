@@ -7,7 +7,10 @@ import { useNavigate } from "react-router-dom";
 import "./WelcomePage.css";
 import io from "socket.io-client";
 
-function WelcomePage() {
+
+function WelcomePage({ showOnlyTeams }) {
+
+
   const { isAuthenticated, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -64,25 +67,31 @@ function WelcomePage() {
 
     return () => socket.disconnect(); // Cleanup on unmount
   }, []);
+  console.log('\n\n\n showOnlyTeams', showOnlyTeams, '\n\n\n ');
+
 
   return (
     <div className="welcome-page">
-      <button onClick={enlistForGame}>Enlist for Next Game</button>
+      {!showOnlyTeams && (
+        <>
 
-      <div className="welcome-section">
-        <h2>Enlisted Players</h2>
-        <div className="usernames-list">
-          {enlistedPlayers.map((username, index) => (
-            <div key={index} className="team-averages">
-              {username}
+          <button onClick={enlistForGame}>Enlist for Next Game</button>
+
+          <div className="welcome-section">
+            <h2>Enlisted Players</h2>
+            <div className="usernames-list">
+              {enlistedPlayers.map((username, index) => (
+                <div key={index} className="team-averages">
+                  {username}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="team-averages">
-          Players: {enlistedPlayers.length}
-        </div>
-      </div>
-
+            <div className="team-averages">
+              Players: {enlistedPlayers.length}
+            </div>
+          </div>
+        </>
+      )}
       <div className="welcome-section">
         <h2>Teams and Averages</h2>
         {Array.isArray(teams) && teams.length > 0 ? (
