@@ -13,15 +13,16 @@ function WelcomePage({ showOnlyTeams }) {
 
   const [teams, setTeams] = useState([]);
   const [enlistedPlayers, setEnlistedPlayers] = useState([]);
+  const apiUrl = process.env.REACT_APP_API_URL
 
   const fetchData = async () => {
     try {
-      const enlistResponse = await axios.get("http://localhost:8080/enlist");
+      const enlistResponse = await axios.get(`${apiUrl}/enlist`);
       if (enlistResponse.data.success) {
         setEnlistedPlayers(enlistResponse.data.usernames);
       }
 
-      const teamsResponse = await axios.get("http://localhost:8080/get-teams");
+      const teamsResponse = await axios.get(`${apiUrl}/get-teams`);
 
       if (teamsResponse.data.success) {
         setTeams(teamsResponse.data.teams);
@@ -43,7 +44,7 @@ function WelcomePage({ showOnlyTeams }) {
   const enlistForGame = async () => {
     try {
       const usernames = [user.username];
-      const response = await axios.post("http://localhost:8080/enlist-users", {
+      const response = await axios.post(`${apiUrl}/enlist-users`, {
         usernames: usernames,
       });
       if (response.data.success) {
@@ -56,7 +57,7 @@ function WelcomePage({ showOnlyTeams }) {
     }
   };
   useEffect(() => {
-    const socket = io("http://localhost:8080");
+    const socket = io(`${apiUrl}`);
 
     socket.on("teamsUpdated", () => {
       fetchData();
